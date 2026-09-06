@@ -64,4 +64,3 @@ dependencies:
       - typing-extensions==4.7.1
       - uci-datasets==1.1.0
       - urllib3==1.26.16
-prefix: /data/johzhang/miniconda/conda/envs/ltnp

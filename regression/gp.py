@@ -24,6 +24,15 @@ from utils.paths import results_path, evalsets_path
 from utils.log import get_logger, RunningAverage
 
 
+def safe_torch_load(path, **kwargs):
+    """Load project artifacts while keeping PyTorch's weights-only safeguards."""
+    safe_globals = getattr(torch.serialization, 'safe_globals', None)
+    if safe_globals is None:
+        return torch.load(path, **kwargs)
+    with safe_globals([AttrDict, tuple]):
+        return torch.load(path, **kwargs)
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -117,7 +126,7 @@ def train(args, model):
         optimizer, T_max=args.num_steps)
 
     if args.resume:
-        ckpt = torch.load(os.path.join(args.root, 'ckpt.tar'))
+        ckpt = safe_torch_load(os.path.join(args.root, 'ckpt.tar'))
         model.load_state_dict(ckpt.model)
         optimizer.load_state_dict(ckpt.optimizer)
         scheduler.load_state_dict(ckpt.scheduler)
@@ -220,7 +229,8 @@ def gen_evalset(args):
 def eval(args, model):
     # eval a trained model on log-likelihood
     if args.mode == 'eval':
-        ckpt = torch.load(os.path.join(args.root, 'ckpt.tar'), map_location=args.device)
+        ckpt = safe_torch_load(
+            os.path.join(args.root, 'ckpt.tar'), map_location=args.device)
         model.load_state_dict(ckpt.model)
         if args.eval_logfile is None:
             eval_logfile = f'eval_{args.eval_kernel}'
@@ -238,7 +248,7 @@ def eval(args, model):
     if not osp.isfile(osp.join(path, filename)):
         print('generating evaluation sets...')
         gen_evalset(args)
-    eval_batches = torch.load(osp.join(path, filename))
+    eval_batches = safe_torch_load(osp.join(path, filename))
 
     if args.mode == "eval":
         torch.manual_seed(args.eval_seed)
