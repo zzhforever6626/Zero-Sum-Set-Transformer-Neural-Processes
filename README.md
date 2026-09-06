@@ -1,6 +1,8 @@
 # ZSTNP
 
-ZSTNP (Zero-Sum Set Transformer Neural Process) includes two groups of experiments:
+This is the official implementation of **Zero-Sum Set Transformer Neural Processes** (IEEE ICDM 2026).
+
+The repository includes two groups of experiments:
 
 - `regression/`: one-dimensional Gaussian process regression and image completion on CelebA, CIFAR-10, and EMNIST.
 - `bayesian_optimization/`: one-dimensional and high-dimensional Bayesian optimization (BO) experiments.
